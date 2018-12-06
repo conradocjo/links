@@ -1,0 +1,540 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions"
+	template="/template/template.xhtml">
+
+	<ui:define name="conteudo">
+		<div>
+			<p:tabView id="tabGeral">
+				<p:tab title="Cadastro de Cargo" id="tabCadastroCargo">
+					<h:form id="frmCadastroCargo">
+						<p:outputLabel value="Cadastro de Cargo" />
+						<p:separator />
+						<p:panelGrid columns="4">
+							<p:outputLabel value="Nome de Cargo: " />
+							<p:inputText value="#{categoriaBean.cargo.nome}" required="true"
+								requiredMessage="Campo nome vazio"
+								placeholder="Digite o nome do cargo ... " />
+							<p:outputLabel value="Descrição: " />
+							<p:inputText value="#{categoriaBean.cargo.descricao}"
+								placeholder="Digite a descrição" />
+							<p:outputLabel value="CBO: " />
+							<p:selectOneMenu value="#{categoriaBean.cargo.cbo}">
+								<f:selectItem itemLabel="Selecione ... "
+									noSelectionOption="true" />
+								<f:selectItem itemLabel="A" itemValue="A" />
+								<f:selectItem itemLabel="B" itemValue="B" />
+								<f:selectItem itemLabel="C" itemValue="C" />
+								<f:selectItem itemLabel="D" itemValue="D" />
+							</p:selectOneMenu>
+							<p:outputLabel value="Código Folha: " />
+							<p:inputNumber value="#{categoriaBean.cargo.codigoFolha}"
+								required="true" requiredMessage="Campo codigo folha vazio"
+								placeholder="Digite codigo folha ..." />
+							<p:outputLabel value="Valor Hora: " />
+							<p:inputNumber value="#{categoriaBean.cargo.valorHora}"
+								placeholder="Digite valor hora ..." />
+							<p:outputLabel value="Horas por semana: " />
+							<p:inputNumber value="#{categoriaBean.cargo.horaSemana}"
+								placeholder="Digite hora semana ..." />
+							<p:outputLabel value="Categoria:" />
+							<p:selectOneMenu required="true"
+								requiredMessage="Campo categoria vazio" filter="true"
+								id="selectCategoriaSelecionadaTabCargo"
+								value="#{categoriaBean.categoriaSelecionada}"
+								converter="omnifaces.SelectItemsConverter">
+
+
+								<f:selectItem noSelectionOption="true" itemLabel="Selecione ..." />
+
+								<f:selectItems value="#{categoriaBean.listaCategoria}" var="cat"
+									itemLabel="#{cat.descricao}" itemValue="#{cat}" />
+
+								<p:ajax event="itemSelect"
+									listener="#{categoriaBean.popularSelectOneMenuSubcategoria()}"
+									update="tabGeral:frmCadastroCargo:selectCategoriaTabCargo" />
+
+							</p:selectOneMenu>
+							<p:outputLabel value="Subcategoria: " />
+							<p:selectOneMenu required="true"
+								requiredMessage="Campo subcategoria vazio" filter="true"
+								id="selectCategoriaTabCargo"
+								value="#{categoriaBean.subcategoriaSelecionada}"
+								converter="omnifaces.SelectItemsConverter">
+
+
+								<f:selectItem noSelectionOption="true" itemLabel="Selecione ..." />
+
+								<f:selectItems
+									value="#{categoriaBean.listaSubcategoriaSelectOneMenu}"
+									var="sub" itemLabel="#{sub.descricao}" itemValue="#{sub}" />
+
+							</p:selectOneMenu>
+
+						</p:panelGrid>
+
+						<p:outputLabel value="Ativo: " style="margin-top:5px;" />
+						<p:selectBooleanCheckbox value="#{categoriaBean.ativoFormatado}" />
+						<p:commandButton style="    margin-left: 40px; margin-top:5px;"
+							value="Cadastrar"
+							actionListener="#{categoriaBean.cadastrarCargo()}"
+							update="message tabGeral:dtfrmCadastroCargo frmCadastroCargo" />
+					</h:form>
+					<p:separator />
+					<h:form id="dtfrmCadastroCargo">
+						<p:panel header="Manutenção de Cargo" style="text-align:center;">
+							<p:dataTable id="cargo" paginator="true" rows="5"
+								value="#{categoriaBean.listaDeCargos}" var="cargos"
+								paginatorPosition="bottom" emptyMessage="Nenhum registro.">
+
+								<p:column headerText="ID" width="50">
+									<p:outputLabel value="#{cargos.cdCargo}" />
+								</p:column>
+
+								<p:column headerText="Nome">
+									<p:outputLabel value="#{cargos.nome}" />
+								</p:column>
+								<p:column headerText="Descrição">
+									<p:outputLabel value="#{cargos.descricao}" />
+								</p:column>
+								<p:column headerText="CBO">
+									<p:outputLabel value="#{cargos.cbo}" />
+								</p:column>
+								<p:column headerText="Código Folha">
+									<p:outputLabel value="#{cargos.codigoFolha}" />
+								</p:column>
+
+								<p:column headerText="Valor Hora" width="100">
+									<p:outputLabel value="#{cargos.valorHora}" />
+								</p:column>
+								<p:column headerText="Hora Semana" width="100">
+									<p:outputLabel value="#{cargos.horaSemana}" />
+								</p:column>
+								<p:column headerText="Status" width="100">
+									<p:outputLabel value="#{cargos.statusFormatado}" />
+								</p:column>
+
+								<p:column headerText="Editar" width="100">
+									<p:commandButton oncomplete="PF('edicaoCargo').show();"
+										action="#{categoriaBean.editarCargo()}" icon="ui-icon-pencil"
+										update=":dialogoEdicaoSubCategoria tabGeral:dtfrmCadastroCargo ">
+										<f:setPropertyActionListener value="#{cargos}"
+											target="#{categoriaBean.cargoSelecionado}" />
+									</p:commandButton>
+								</p:column>
+								<p:column headerText="Remover" width="100">
+									<p:commandButton icon="ui-icon-trash"
+										update="message tabGeral:dtfrmCadastroCargo"
+										action="#{categoriaBean.ecluirCargo()}">
+										<f:setPropertyActionListener value="#{cargos}"
+											target="#{categoriaBean.cargoSelecionado}"  />
+										<p:confirm header="Excluir cargo?"
+											message="Tem certeza que deseja excluir?"
+											icon="ui-icon-alert" />
+									</p:commandButton>
+									<p:confirmDialog global="true" showEffect="fade"
+										hideEffect="fade">
+										<p:commandButton value="Sim" type="button"
+											styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+										<p:commandButton value="Não" type="button"
+											styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+									</p:confirmDialog>
+								</p:column>
+
+
+							</p:dataTable>
+						</p:panel>
+					</h:form>
+				</p:tab>
+
+				<p:tab title="Consultar Cargo" id="tabConsultarCargo">
+					<h:form id="frmConsultarCargo">
+						<p:outputLabel value="Consultar Cargo" />
+						<p:separator />
+						<p:panelGrid columns="4">
+							<p:outputLabel value="Nome de Cargo: " />
+							<p:inputText value="#{categoriaBean.cargoBuscado.nome}" id="Nome"
+								placeholder="Digite o nome do cargo ... " required="true"
+								requiredMessage="Favor preencher campo nome" />
+							<p:outputLabel value="CBO: " />
+							<p:selectOneMenu value="#{categoriaBean.cargoBuscado.cbo}"
+								converter="omnifaces.SelectItemsConverter">
+								<f:selectItem itemLabel="Selecione ... "
+									noSelectionOption="true" />
+								<f:selectItem itemLabel="A" itemValue="A" />
+								<f:selectItem itemLabel="B" itemValue="B" />
+								<f:selectItem itemLabel="C" itemValue="C" />
+								<f:selectItem itemLabel="D" itemValue="D" />
+							</p:selectOneMenu>
+							<p:outputLabel value="Código Folha: " rendered="true" />
+							<p:inputNumber value="#{categoriaBean.cargoBuscado.codigoFolha}"
+								placeholder="Digite codigo folha ..." />
+							<p:outputLabel value="Mostrar: " />
+							<p:selectManyCheckbox id="basic" value="#{categoriaBean.status}">
+								<f:selectItem itemLabel="Ativos" itemValue="1" />
+								<f:selectItem itemLabel="Inativos" itemValue="0" />
+							</p:selectManyCheckbox>
+						</p:panelGrid>
+
+						<p:commandButton style="margin-top:5px;" value="Buscar"
+							actionListener="#{categoriaBean.consultarCargos()}"
+							update="message tabGeral:frmConsultarCargo:cargoDT" />
+						<p:separator />
+
+						<p:dataTable id="cargoDT" paginator="true" rows="5"
+							value="#{categoriaBean.listaDeCargos}" var="cargos"
+							paginatorPosition="bottom" emptyMessage="Nenhum registro.">
+
+							<p:column headerText="ID" width="50">
+								<p:outputLabel value="#{cargos.cdCargo}" />
+							</p:column>
+
+							<p:column headerText="Nome">
+								<p:outputLabel value="#{cargos.nome}" />
+							</p:column>
+							<p:column headerText="Descrição">
+								<p:outputLabel value="#{cargos.descricao}" />
+							</p:column>
+							<p:column headerText="CBO" style="text-align:center;">
+								<p:outputLabel value="#{cargos.cbo}" />
+							</p:column>
+							<p:column headerText="Código Folha" style="text-align:center;">
+								<p:outputLabel value="#{cargos.codigoFolha}" />
+							</p:column>
+
+							<p:column headerText="Valor Hora" width="100"
+								style="text-align:center;">
+								<p:outputLabel value="#{cargos.valorHora}" />
+							</p:column>
+							<p:column headerText="Hora Semana" width="100"
+								style="text-align:center;">
+								<p:outputLabel value="#{cargos.horaSemana}" />
+							</p:column>
+							<p:column headerText="Status" width="100"
+								style="text-align:center;">
+								<p:outputLabel value="#{cargos.statusFormatado}" />
+							</p:column>
+
+						</p:dataTable>
+					</h:form>
+				</p:tab>
+
+				<p:tab title="Cadastro Categoria" id="tabCadastroCategoria">
+					<h:form id="frmCategoriaCadastro">
+						<p:outputLabel value="Cadastro de Categorias" />
+						<p:separator />
+						<p:panelGrid columns="3">
+							<p:outputLabel value="Categoria:" for="textCategoria" />
+							<p:inputText id="textCategoria"
+								value="#{categoriaBean.categoria.descricao}"
+								placeholder="Descrição ... " required="true" />
+							<p:commandButton value="Cadastrar Categoria"
+								actionListener="#{categoriaBean.cadastrarCategoria()}"
+								update="textCategoria message tabGeral:frmCategoria:categoria " />
+
+						</p:panelGrid>
+					</h:form>
+					<p:separator />
+					<h:form id="frmCategoria">
+						<p:panel header="Categorias Cadastradas"
+							style="text-align:center;">
+							<p:dataTable id="categoria" paginator="true" rows="5"
+								value="#{categoriaBean.listaCategoria}" var="categoria"
+								paginatorPosition="bottom" emptyMessage="Nenhum registro.">
+
+								<p:column headerText="ID" width="40">
+									<p:outputLabel value="#{categoria.cdCategoria}" />
+								</p:column>
+
+								<p:column headerText="Descrição" width="40">
+									<p:outputLabel value="#{categoria.descricao}" />
+								</p:column>
+
+								<p:column headerText="Editar" width="40">
+									<p:commandButton oncomplete="PF('edicao').show();"
+										icon="ui-icon-pencil" update="dialogoEdicao ">
+										<f:setPropertyActionListener value="#{categoria}"
+											target="#{categoriaBean.categoriaSelecionada}" />
+									</p:commandButton>
+								</p:column>
+								<p:column headerText="Remover" width="40">
+									<p:commandButton icon="ui-icon-trash"
+										action="#{categoriaBean.excluirCategoria()}"
+										update=":tabGeral:frmCategoria:categoria message">
+										<f:setPropertyActionListener value="#{categoria}"
+											target="#{categoriaBean.categoriaSelecionada}" />
+										<p:confirm header="Excluir categoria?"
+											message="Tem certeza que deseja excluir?"
+											icon="ui-icon-alert" />
+									</p:commandButton>
+									<p:confirmDialog global="true" showEffect="fade"
+										hideEffect="fade">
+										<p:commandButton value="Sim" type="button"
+											styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+										<p:commandButton value="Não" type="button"
+											styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+									</p:confirmDialog>
+								</p:column>
+
+							</p:dataTable>
+						</p:panel>
+					</h:form>
+				</p:tab>
+				<p:tab title="Cadastro SubCategoria" id="tabCadastroSubCategoria">
+					<h:form id="formSubcategoriaCadastro">
+						<p:outputLabel value="Cadastro de SubCategorias" />
+						<p:separator />
+						<p:panelGrid columns="2">
+							<p:outputLabel value="Subcategoria: " />
+							<p:inputText value="#{categoriaBean.subcategoria.descricao}"
+								placeholder="Descrição ... " required="true" />
+
+							<p:outputLabel value="Categoria:" />
+							<p:selectOneMenu filter="true" id="selectCategoriaSubcategoria"
+								value="#{categoriaBean.categoriaSelecionada}"
+								converter="omnifaces.SelectItemsConverter" required="true">
+
+
+								<f:selectItem noSelectionOption="true" itemLabel="Selecione ..." />
+
+								<f:selectItems value="#{categoriaBean.listaCategoria}" var="cat"
+									itemLabel="#{cat.descricao}" itemValue="#{cat}" />
+
+							</p:selectOneMenu>
+						</p:panelGrid>
+						<p:commandButton value="Cadastrar SubCategoria"
+							actionListener="#{categoriaBean.cadastrarSubCategoria()}"
+							update=" message  tabGeral:formSubcategoria:subcategoria" />
+					</h:form>
+					<p:separator />
+					<h:form id="formSubcategoria">
+						<p:panel header="SubCategorias Cadastradas"
+							style="text-align:center;">
+
+							<p:dataTable id="subcategoria" paginator="true" rows="5"
+								value="#{categoriaBean.listaSubcategoria}" var="subcategoria"
+								paginatorPosition="bottom" emptyMessage="Nenhum registro.">
+
+								<p:column headerText="ID" width="40">
+									<p:outputLabel value="#{subcategoria.cdSubcategoria}" />
+								</p:column>
+
+								<p:column headerText="Descrição" width="40">
+									<p:outputLabel value="#{subcategoria.descricao}" />
+								</p:column>
+
+								<p:column headerText="Categoria" width="40">
+									<p:outputLabel value="#{subcategoria.cdCategoria.descricao}" />
+								</p:column>
+
+								<p:column headerText="Editar" width="40">
+									<p:commandButton oncomplete="PF('edicaoSubcategoria').show();"
+										icon="ui-icon-pencil"
+										update=":dialogoEdicaoSubCategoria subcategoria ">
+										<f:setPropertyActionListener value="#{subcategoria}"
+											target="#{categoriaBean.subcategoriaSelecionada}" />
+									</p:commandButton>
+								</p:column>
+								<p:column headerText="Remover" width="40">
+									<p:commandButton icon="ui-icon-trash"
+										update="message :dialogoEdicaoSubCategoria subcategoria"
+										action="#{categoriaBean.excluirSubCategoria()}">
+										<f:setPropertyActionListener value="#{subcategoria}"
+											target="#{categoriaBean.subcategoriaSelecionada}" />
+										<p:confirm header="Excluir SubCategoria?"
+											message="Tem certeza que deseja excluir?"
+											icon="ui-icon-alert" />
+									</p:commandButton>
+									<p:confirmDialog global="true" showEffect="fade"
+										hideEffect="fade">
+										<p:commandButton value="Sim" type="button"
+											styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+										<p:commandButton value="Não" type="button"
+											styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+									</p:confirmDialog>
+								</p:column>
+
+							</p:dataTable>
+
+						</p:panel>
+					</h:form>
+				</p:tab>
+
+
+
+			</p:tabView>
+		</div>
+
+
+		<!-- Dialogo atualizar Cargo -->
+
+		<p:dialog header="Atualizar Cargo" id="dialogoEdicaoCargo"
+			widgetVar="edicaoCargo" draggable="false" modal="true"
+			closable="true">
+			<h:form>
+				<p:panelGrid columns="4">
+					<p:outputLabel value="Nome de Cargo: " />
+					<p:inputText value="#{categoriaBean.cargoSelecionado.nome}"
+						placeholder="Digite o nome do cargo ... " required="true" requiredMessage="Favor digitar o nome" />
+					<p:outputLabel value="Descrição: " />
+					<p:inputText value="#{categoriaBean.cargoSelecionado.descricao}"
+						placeholder="Digite a descrição" />
+					<p:outputLabel value="CBO: " />
+					<p:selectOneMenu value="#{categoriaBean.cargoSelecionado.cbo}">
+						<f:selectItem itemLabel="Selecione ... " noSelectionOption="true" />
+						<f:selectItem itemLabel="A" itemValue="A" />
+						<f:selectItem itemLabel="B" itemValue="B" />
+						<f:selectItem itemLabel="C" itemValue="C" />
+						<f:selectItem itemLabel="D" itemValue="D" />
+					</p:selectOneMenu>
+					<p:outputLabel value="Código Folha: " />
+					<p:inputNumber
+						value="#{categoriaBean.cargoSelecionado.codigoFolha}"
+						placeholder="Digite codigo folha" required="true" requiredMessage="Favor digitar o código folha"/>
+					<p:outputLabel value="Valor Hora: " />
+					<p:inputNumber value="#{categoriaBean.cargoSelecionado.valorHora}"
+						placeholder="Digite valor hora" />
+					<p:outputLabel value="Horas por semana: " />
+					<p:inputNumber value="#{categoriaBean.cargoSelecionado.horaSemana}"
+						placeholder="Digite hora semana" />
+					<p:outputLabel value="Categoria:" />
+					<p:selectOneMenu filter="true"
+						id="selectCategoriaSubcategoriaDialogoCargo"
+						value="#{categoriaBean.categoriaSelecionada}"
+						converter="omnifaces.SelectItemsConverter" required="true" 
+						requiredMessage="Favor digitar a categoria">
+
+
+						<f:selectItem noSelectionOption="true" itemLabel="Selecione ..." />
+
+						<f:selectItems value="#{categoriaBean.listaCategoria}" var="cat"
+							itemLabel="#{cat.descricao}" itemValue="#{cat}" />
+						<p:ajax event="itemSelect"
+							listener="#{categoriaBean.popularSelectOneMenuSubcategoria()}" />
+
+					</p:selectOneMenu>
+					<p:outputLabel value="Subcategoria: " />
+					<p:selectOneMenu filter="true" id="selectCategoriaDialogoCargo"
+						value="#{categoriaBean.categoriaSelecionada}"
+						converter="omnifaces.SelectItemsConverter"
+						required="true" requiredMessage="Favor digitar a subcategoria">
+
+
+						<f:selectItem noSelectionOption="true" itemLabel="Selecione ..." />
+
+						<f:selectItems value="#{categoriaBean.listaCategoria}" var="sub"
+							itemLabel="#{sub.descricao}" itemValue="#{sub}" />
+
+					</p:selectOneMenu>
+
+				</p:panelGrid>
+
+				<p:outputLabel value="Ativo: " />
+				<p:selectBooleanCheckbox
+					value="#{categoriaBean.cargoSelecionado.ativo}" />
+				<p:commandButton value="Atulizar"
+					oncomplete="PF('edicaoCargo').hide();"
+					style="margin-top:5px; margin-left:68%;"
+					action="#{categoriaBean.editarCargo()}"
+					update="message :tabGeral:dtfrmCadastroCargo ">
+
+					<p:confirm header="Atualizar categoria?"
+						message="Tem certeza que deseja atualizar a categoria?"
+						icon="ui-icon-alert" />
+
+				</p:commandButton>
+
+				<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+					<p:commandButton value="Sim" type="button"
+						styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+					<p:commandButton value="Não" type="button"
+						styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+				</p:confirmDialog>
+			</h:form>
+		</p:dialog>
+
+
+		<!-- Dialogo atualizar Categoria -->
+		<p:dialog header="Atualizar Categoria" id="dialogoEdicao"
+			widgetVar="edicao" draggable="false" modal="true" closable="true">
+			<h:form>
+				<p:panelGrid columns="2">
+					<p:outputLabel value="Descrição: " />
+					<p:inputText
+						value="#{categoriaBean.categoriaSelecionada.descricao}" />
+				</p:panelGrid>
+				<p:commandButton value="Atulizar" oncomplete="PF('edicao').hide();"
+					style="margin-top:5px; margin-left:68%;"
+					action="#{categoriaBean.editarCategoria()}"
+					update="message :tabGeral:frmCategoria ">
+
+					<p:confirm header="Atualizar categoria?"
+						message="Tem certeza que deseja atualizar a categoria?"
+						icon="ui-icon-alert" />
+
+				</p:commandButton>
+
+				<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+					<p:commandButton value="Sim" type="button"
+						styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+					<p:commandButton value="Não" type="button"
+						styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+				</p:confirmDialog>
+			</h:form>
+		</p:dialog>
+
+
+
+		<!-- Dialogo atualizar subCategoria -->
+		<p:dialog header="Atualizar SubCategoria"
+			id="dialogoEdicaoSubCategoria" widgetVar="edicaoSubcategoria"
+			draggable="false" modal="true" closable="true">
+			<h:form>
+				<p:panelGrid columns="2">
+					<p:outputLabel value="ID" />
+					<p:inputText disabled="true"
+						value="#{categoriaBean.subcategoriaSelecionada.cdSubcategoria}" />
+					<p:outputLabel value="Descrição: " />
+					<p:inputText
+						value="#{categoriaBean.subcategoriaSelecionada.descricao}" />
+
+					<p:outputLabel value="Categoria: " />
+					<p:selectOneMenu filter="true" id="selectCategoriaSubcategoria"
+						value="#{categoriaBean.categoriaSelecionada}"
+						converter="omnifaces.SelectItemsConverter">
+
+
+						<f:selectItem noSelectionOption="true" itemLabel="Selecione ..." />
+
+						<f:selectItems value="#{categoriaBean.listaCategoria}" var="cat"
+							itemLabel="#{cat.descricao}" itemValue="#{cat}" />
+
+					</p:selectOneMenu>
+				</p:panelGrid>
+				<p:commandButton value="Atulizar"
+					oncomplete="PF('edicaoSubcategoria').hide();"
+					style="margin-top:5px; margin-left:68%;"
+					action="#{categoriaBean.editarSubCategoria()}"
+					update="message dialogoEdicaoSubCategoria :tabGeral:formSubcategoria">
+
+					<p:confirm header="Atualizar categoria?"
+						message="Tem certeza que deseja atualizar a subcategoria?"
+						icon="ui-icon-alert" />
+
+				</p:commandButton>
+
+				<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+					<p:commandButton value="Sim" type="button"
+						styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+					<p:commandButton value="Não" type="button"
+						styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+				</p:confirmDialog>
+			</h:form>
+		</p:dialog>
+
+	</ui:define>
+
+</ui:composition>

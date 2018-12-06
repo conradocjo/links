@@ -1,0 +1,31 @@
+.header {
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: #ecf0f1;
+	height: 98px;
+}
+
+.linha {
+	background: #4e6da4;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	top: 98px;
+	left: 0;
+	height: 5px;
+}
+
+.conteudo {
+	widows: 100px;
+	height: 500px;
+	margin-top: 108px;
+}
+
+.ui-widget {
+	font-size: 13px !important;
+}
